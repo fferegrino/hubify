@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "Create GitHub-like visualisations"
 authors = ["Antonio Feregrino <antonio.feregrino@gmail.com>"]
 license = "MIT"
+homepage = "https://github.com/fferegrino/hubify"
+repository = "https://github.com/fferegrino/hubify"
+readme = "readme.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
