@@ -1,23 +1,27 @@
-from datetime import timedelta
 import calendar
-import numpy as np
+from datetime import timedelta
+
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
 
-def hubify(time_series, plot_title = None):
-    # Data transformation
-    day_by_day = time_series.dt.floor('d')
-    grouped = day_by_day.groupby(day_by_day).count()
-    grouped = grouped.rename_axis('date').rename('events').reset_index()
-    grouped['weekday'] = grouped['date'].dt.weekday
-    grouped['week'] = grouped['date'].dt.week
 
-    starting_year = grouped['date'].dt.year.min()
+def hubify(time_series, plot_title=None):
+    # Data transformation
+    day_by_day = time_series.dt.floor("d")
+    grouped = day_by_day.groupby(day_by_day).count()
+    grouped = grouped.rename_axis("date").rename("events").reset_index()
+    grouped["weekday"] = grouped["date"].dt.weekday
+    grouped["week"] = grouped["date"].dt.week
+
+    starting_year = grouped["date"].dt.year.min()
     # TODO: not all years have 52 weeks
-    grouped['continuous_week'] = (grouped['week'] - grouped['week'].min()) + ((grouped['date'].dt.year - starting_year) * 52)
+    grouped["continuous_week"] = (grouped["week"] - grouped["week"].min()) + (
+        (grouped["date"].dt.year - starting_year) * 52
+    )
 
     # Generate a heatmap from the time series data
-    heatmap = np.full((7, grouped['continuous_week'].max() + 1), np.nan)
+    heatmap = np.full((7, grouped["continuous_week"].max() + 1), np.nan)
 
     for _, row in grouped.iterrows():
         heatmap[row["weekday"]][row["continuous_week"]] = row["events"]
@@ -25,8 +29,15 @@ def hubify(time_series, plot_title = None):
     # Plot the timestamp
     fig = plt.figure(figsize=(20, 5))
     ax = plt.subplot()
-    sns.heatmap(heatmap, ax=ax, cbar=False,
-                linecolor='white', cmap="Greens",square=True, linewidth=2)
+    sns.heatmap(
+        heatmap,
+        ax=ax,
+        cbar=False,
+        linecolor="white",
+        cmap="Greens",
+        square=True,
+        linewidth=2,
+    )
 
     # Change Y labels
     y_labels = ["Mon", "", "Wed", "", "Fri", "", "Sun"]
@@ -54,6 +65,6 @@ def hubify(time_series, plot_title = None):
         ax.set_title(plot_title, fontsize=20, pad=40)
     ax.xaxis.tick_top()
     ax.set_facecolor("#ebedf0")
-    ax.tick_params(axis='both', which='both', length=0)
+    ax.tick_params(axis="both", which="both", length=0)
 
     plt.show()
