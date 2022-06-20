@@ -37,7 +37,16 @@ def hubify(time_series):
     first_monday = min_date - timedelta(min_date.weekday())
     all_mondays = [first_monday + timedelta(weeks=wk) for wk in range(grouped["continuous_week"].max() + 1)]
     x_labels = [calendar.month_abbr[monday.month] for monday in all_mondays]
-    # TODO: Show only the first label for a given month
-    ax.set_xticklabels(x_labels)
+    true_x_labels = []
+    current_x_label = ""
+    for x_label in x_labels:
+        if current_x_label != x_label:
+            true_x_labels.append(x_label)
+            current_x_label = x_label
+        else:
+            true_x_labels.append("")
+    if current_x_label != x_label:
+        true_x_labels.append(x_label)
+    ax.set_xticklabels(true_x_labels)
 
     plt.show()
