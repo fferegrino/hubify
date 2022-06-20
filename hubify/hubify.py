@@ -49,6 +49,11 @@ def hubify(time_series, plot_title = None):
         true_x_labels.append(x_label)
     ax.set_xticklabels(true_x_labels)
 
+    # Set more plot details
     if plot_title:
         ax.set_title(plot_title, fontsize=20, pad=40)
+    ax.xaxis.tick_top()
+    ax.set_facecolor("#ebedf0")
+    ax.tick_params(axis='both', which='both', length=0)
+
     plt.show()
