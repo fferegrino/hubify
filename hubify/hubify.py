@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def hubify(time_series):
+def hubify(time_series, plot_title = None):
     # Data transformation
     day_by_day = time_series.dt.floor('d')
     grouped = day_by_day.groupby(day_by_day).count()
@@ -49,4 +49,6 @@ def hubify(time_series):
         true_x_labels.append(x_label)
     ax.set_xticklabels(true_x_labels)
 
+    if plot_title:
+        ax.set_title(plot_title, fontsize=20, pad=40)
     plt.show()
