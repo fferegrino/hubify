@@ -11,7 +11,10 @@ def hubify(time_series):
     grouped = grouped.rename_axis('date').rename('events').reset_index()
     grouped['weekday'] = grouped['date'].dt.weekday
     grouped['week'] = grouped['date'].dt.week
-    grouped['continuous_week'] = grouped['week'] - grouped['week'].min()
+
+    starting_year = grouped['date'].dt.year.min()
+    # TODO: not all years have 52 weeks
+    grouped['continuous_week'] = (grouped['week'] - grouped['week'].min()) + ((grouped['date'].dt.year - starting_year) * 52)
 
     # Generate a heatmap from the time series data
     heatmap = np.full((7, grouped['continuous_week'].max() + 1), np.nan)
