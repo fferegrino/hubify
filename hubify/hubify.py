@@ -1,6 +1,6 @@
 from datetime import timedelta
 import calendar
-import  numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -22,7 +22,8 @@ def hubify(time_series):
     # Plot the timestamp
     fig = plt.figure(figsize=(20, 5))
     ax = plt.subplot()
-    sns.heatmap(heatmap, ax=ax)
+    sns.heatmap(heatmap, ax=ax, cbar=False,
+                linecolor='white', cmap="Greens",square=True, linewidth=2)
 
     # Change Y labels
     y_labels = ["Mon", "", "Wed", "", "Fri", "", "Sun"]
