@@ -1,3 +1,5 @@
+from datetime import timedelta
+import calendar
 import  numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -21,4 +23,17 @@ def hubify(time_series):
     fig = plt.figure(figsize=(20, 5))
     ax = plt.subplot()
     sns.heatmap(heatmap, ax=ax)
+
+    # Change Y labels
+    y_labels = ["Mon", "", "Wed", "", "Fri", "", "Sun"]
+    ax.set_yticklabels(y_labels, rotation=0)
+
+    # Get the monday for the first week of the graph
+    min_date = grouped["date"].min()
+    first_monday = min_date - timedelta(min_date.weekday())
+    all_mondays = [first_monday + timedelta(weeks=wk) for wk in range(grouped["continuous_week"].max() + 1)]
+    x_labels = [calendar.month_abbr[monday.month] for monday in all_mondays]
+    # TODO: Show only the first label for a given month
+    ax.set_xticklabels(x_labels)
+
     plt.show()
