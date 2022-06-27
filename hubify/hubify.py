@@ -3,7 +3,16 @@ from datetime import timedelta
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import seaborn as sns
+
+
+def calculate_continuous_week(frame: pd.DataFrame) -> pd.Series:
+    """
+    Calculate the number of week starting from the first week available
+    :param frame: A data frame containing a 'year' and 'week' columns
+    :return: A pandas series with the continuous week number
+    """
 
 
 def hubify(time_series, plot_title=None):
