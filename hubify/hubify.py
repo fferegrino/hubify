@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+WEEKS_IN_A_YEAR = 52
+
 
 def calculate_continuous_week(frame: pd.DataFrame) -> pd.Series:
     """
@@ -13,6 +15,12 @@ def calculate_continuous_week(frame: pd.DataFrame) -> pd.Series:
     :param frame: A data frame containing a 'year' and 'week' columns
     :return: A pandas series with the continuous week number
     """
+    min_year = frame["year"].min()
+    min_week = frame[frame["year"] == min_year]["week"].min()
+
+    year_week = (frame["year"] - min_year) * WEEKS_IN_A_YEAR
+
+    return frame["week"] + year_week - min_week + 1
 
 
 def hubify(time_series, plot_title=None):
