@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+# TODO: check https://github.com/gisle/isoweek to make this dynamic
 WEEKS_IN_A_YEAR = 52
 
 
@@ -30,12 +31,10 @@ def hubify(time_series, plot_title=None):
     grouped = grouped.rename_axis("date").rename("events").reset_index()
     grouped["weekday"] = grouped["date"].dt.weekday
     grouped["week"] = grouped["date"].dt.week
+    grouped["year"] = grouped["date"].dt.year
 
-    starting_year = grouped["date"].dt.year.min()
     # TODO: not all years have 52 weeks
-    grouped["continuous_week"] = (grouped["week"] - grouped["week"].min()) + (
-        (grouped["date"].dt.year - starting_year) * 52
-    )
+    grouped["continuous_week"] = calculate_continuous_week(grouped)
 
     # Generate a heatmap from the time series data
     heatmap = np.full((7, grouped["continuous_week"].max() + 1), np.nan)
