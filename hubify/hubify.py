@@ -1,5 +1,6 @@
 import calendar
 from datetime import timedelta
+from typing import Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,7 +25,13 @@ def calculate_continuous_week(frame: pd.DataFrame) -> pd.Series:
     return frame["week"] + year_week - min_week + 1
 
 
-def hubify(time_series, plot_title=None):
+def hubify(time_series: pd.Series, plot_title: Union[str, None] = None):
+    """
+    Create a GitHub like plot of your time series data.
+
+    :param time_series: A pandas series of type `datetime64` with the timestamps for the events to plot
+    :param plot_title: The title of the plot
+    """
     # Data transformation
     day_by_day = time_series.dt.floor("d")
     grouped = day_by_day.groupby(day_by_day).count()
