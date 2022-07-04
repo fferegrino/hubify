@@ -26,6 +26,12 @@ jobs:
         poetry config virtualenvs.create false --local
         poetry install
 
+    - name: Run black
+      run:  black . --check
+
+    - name: Run isort
+      run:  isort . --check-only
+
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       env:
