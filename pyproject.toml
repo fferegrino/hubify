@@ -24,6 +24,19 @@ bump2version = "^1.0.1"
 [tool.black]
 line-length = 120
 
+[tool.isort]
+skip_glob = [".content", "dist"]
+# Structure
+default_section = "THIRDPARTY"
+known_first_party = "hubify"
+# Import Style
+line_length = 120
+force_grid_wrap = false
+use_parentheses = true
+include_trailing_comma = true
+combine_as_imports = true
+multi_line_output = 3
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

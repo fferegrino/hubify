@@ -32,6 +32,9 @@ jobs:
     - name: Run isort
       run:  isort . --check-only
 
+    - name: Run tests
+      run:  pytest ./tests
+
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       env:

@@ -25,13 +25,7 @@ def calculate_continuous_week(frame: pd.DataFrame) -> pd.Series:
     return frame["week"] + year_week - min_week + 1
 
 
-def hubify(time_series: pd.Series, plot_title: Union[str, None] = None):
-    """
-    Create a GitHub like plot of your time series data.
-
-    :param time_series: A pandas series of type `datetime64` with the timestamps for the events to plot
-    :param plot_title: The title of the plot
-    """
+def prepare_time_series(time_series: pd.Series) -> pd.DataFrame:
     # Data transformation
     day_by_day = time_series.dt.floor("d")
     grouped = day_by_day.groupby(day_by_day).count()
@@ -39,15 +33,29 @@ def hubify(time_series: pd.Series, plot_title: Union[str, None] = None):
     grouped["weekday"] = grouped["date"].dt.weekday
     grouped["week"] = grouped["date"].dt.week
     grouped["year"] = grouped["date"].dt.year
+    return grouped
 
-    # TODO: not all years have 52 weeks
-    grouped["continuous_week"] = calculate_continuous_week(grouped)
 
+def prepare_base_heatmap(grouped: pd.DataFrame) -> np.array:
     # Generate a heatmap from the time series data
     heatmap = np.full((7, grouped["continuous_week"].max() + 1), np.nan)
-
     for _, row in grouped.iterrows():
         heatmap[row["weekday"]][row["continuous_week"]] = row["events"]
+    return heatmap
+
+
+def hubify(time_series: pd.Series, plot_title: Union[str, None] = None):
+    """
+    Create a GitHub like plot of your time series data.
+
+    :param time_series: A pandas series of type `datetime64` with the timestamps for the events to plot
+    :param plot_title: The title of the plot
+    """
+    grouped = prepare_time_series(time_series)
+
+    grouped["continuous_week"] = calculate_continuous_week(grouped)
+
+    heatmap = prepare_base_heatmap(grouped)
 
     # Plot the timestamp
     fig = plt.figure(figsize=(20, 5))
