@@ -1,13 +1,14 @@
 import calendar
 from datetime import timedelta
-from typing import Union
+from typing import Optional, Union
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.axes import Axes
 
 # TODO: check https://github.com/gisle/isoweek to make this dynamic
+
 WEEKS_IN_A_YEAR = 52
 
 
@@ -44,12 +45,13 @@ def prepare_base_heatmap(grouped: pd.DataFrame) -> np.array:
     return heatmap
 
 
-def hubify(time_series: pd.Series, plot_title: Union[str, None] = None):
+def hubify(time_series: pd.Series, plot_title: Union[str, None] = None, ax: Optional[Axes] = None):
     """
     Create a GitHub like plot of your time series data.
 
     :param time_series: A pandas series of type `datetime64` with the timestamps for the events to plot
     :param plot_title: The title of the plot
+    :param ax: The Axes in which the heatmap should be drawn, uses the currently-active Axes if none is provided
     """
     grouped = prepare_time_series(time_series)
 
@@ -58,9 +60,7 @@ def hubify(time_series: pd.Series, plot_title: Union[str, None] = None):
     heatmap = prepare_base_heatmap(grouped)
 
     # Plot the timestamp
-    fig = plt.figure(figsize=(20, 5))
-    ax = plt.subplot()
-    sns.heatmap(
+    ax = sns.heatmap(
         heatmap,
         ax=ax,
         cbar=False,
@@ -97,5 +97,3 @@ def hubify(time_series: pd.Series, plot_title: Union[str, None] = None):
     ax.xaxis.tick_top()
     ax.set_facecolor("#ebedf0")
     ax.tick_params(axis="both", which="both", length=0)
-
-    plt.show()
