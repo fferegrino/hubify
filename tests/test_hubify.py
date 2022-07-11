@@ -102,7 +102,7 @@ def test_prepare_base_heatmap():
             [numpy.nan, 2],
             [numpy.nan, 1],
             [numpy.nan, 1],
-            [numpy.nan, numpy.nan],
+            [numpy.nan, 1],
             [numpy.nan, numpy.nan],
             [numpy.nan, numpy.nan],
             [numpy.nan, numpy.nan],
