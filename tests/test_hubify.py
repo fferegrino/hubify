@@ -3,8 +3,7 @@ from datetime import datetime
 import numpy
 import pandas as pd
 
-from hubify.hubify import (calculate_continuous_week, prepare_base_heatmap,
-                           prepare_time_series)
+from hubify.hubify import calculate_continuous_week, prepare_base_heatmap, prepare_time_series
 
 
 def test_simple_week_number():
