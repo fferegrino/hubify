@@ -1,15 +1,13 @@
-name: Release the library to PyPI
+name: Non main pushes and PRs
 
 on:
   push:
-    tags:
-      - v*
-    branches:
+    branches-ignore:
       - main
 
 jobs:
-  release:
-    name: Release
+  check:
+    name: Check code style
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -31,10 +29,3 @@ jobs:
 
     - name: Run isort
       run:  isort . --check-only
-
-    - name: Release
-      if: startsWith(github.ref, 'refs/tags/')
-      env:
-        PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        poetry publish -u __token__ -p ${PYPI_PASSWORD} --build
