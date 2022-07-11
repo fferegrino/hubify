@@ -36,7 +36,7 @@ def prepare_time_series(time_series: pd.Series) -> pd.DataFrame:
     return grouped
 
 
-def prepare_base_heatmap(grouped):
+def prepare_base_heatmap(grouped: pd.DataFrame) -> np.array:
     # Generate a heatmap from the time series data
     heatmap = np.full((7, grouped["continuous_week"].max() + 1), np.nan)
     for _, row in grouped.iterrows():

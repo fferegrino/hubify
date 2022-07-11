@@ -1,8 +1,10 @@
 from datetime import datetime
 
+import numpy
 import pandas as pd
 
-from hubify.hubify import calculate_continuous_week, prepare_time_series
+from hubify.hubify import (calculate_continuous_week, prepare_base_heatmap,
+                           prepare_time_series)
 
 
 def test_simple_week_number():
@@ -82,3 +84,34 @@ def test_prepare_time_series():
 
     # Assert
     pd.testing.assert_frame_equal(actual_result, expected)
+
+
+def test_prepare_base_heatmap():
+    # Prepare
+    input_data = pd.DataFrame(
+        [
+            (datetime(2022, 1, 3), 2, 0, 1, 2022, 1),
+            (datetime(2022, 1, 4), 1, 1, 1, 2022, 1),
+            (datetime(2022, 1, 5), 1, 2, 1, 2022, 1),
+            (datetime(2022, 1, 6), 1, 3, 1, 2022, 1),
+        ],
+        columns=["date", "events", "weekday", "week", "year", "continuous_week"],
+    )
+
+    expected = numpy.array(
+        [
+            [numpy.nan, 2],
+            [numpy.nan, 1],
+            [numpy.nan, 1],
+            [numpy.nan, 1],
+            [numpy.nan, numpy.nan],
+            [numpy.nan, numpy.nan],
+            [numpy.nan, numpy.nan],
+        ]
+    )
+
+    # Act
+    actual = prepare_base_heatmap(input_data)
+
+    # Assert
+    numpy.testing.assert_equal(actual, expected)
