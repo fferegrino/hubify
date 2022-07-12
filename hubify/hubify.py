@@ -45,20 +45,7 @@ def prepare_base_heatmap(grouped: pd.DataFrame) -> np.array:
     return heatmap
 
 
-def hubify(time_series: pd.Series, plot_title: Union[str, None] = None, ax: Optional[Axes] = None):
-    """
-    Create a GitHub like plot of your time series data.
-
-    :param time_series: A pandas series of type `datetime64` with the timestamps for the events to plot
-    :param plot_title: The title of the plot
-    :param ax: The Axes in which the heatmap should be drawn, uses the currently-active Axes if none is provided
-    """
-    grouped = prepare_time_series(time_series)
-
-    grouped["continuous_week"] = calculate_continuous_week(grouped)
-
-    heatmap = prepare_base_heatmap(grouped)
-
+def plot_heatmap(ax, prepared_df, heatmap, plot_title):
     # Plot the timestamp
     ax = sns.heatmap(
         heatmap,
@@ -69,15 +56,13 @@ def hubify(time_series: pd.Series, plot_title: Union[str, None] = None, ax: Opti
         square=True,
         linewidth=2,
     )
-
     # Change Y labels
     y_labels = ["Mon", "", "Wed", "", "Fri", "", "Sun"]
     ax.set_yticklabels(y_labels, rotation=0)
-
     # Get the monday for the first week of the graph
-    min_date = grouped["date"].min()
+    min_date = prepared_df["date"].min()
     first_monday = min_date - timedelta(min_date.weekday())
-    all_mondays = [first_monday + timedelta(weeks=wk) for wk in range(grouped["continuous_week"].max() + 1)]
+    all_mondays = [first_monday + timedelta(weeks=wk) for wk in range(prepared_df["continuous_week"].max() + 1)]
     x_labels = [calendar.month_abbr[monday.month] for monday in all_mondays]
     true_x_labels = []
     current_x_label = ""
@@ -90,10 +75,28 @@ def hubify(time_series: pd.Series, plot_title: Union[str, None] = None, ax: Opti
     if current_x_label != x_label:
         true_x_labels.append(x_label)
     ax.set_xticklabels(true_x_labels)
-
     # Set more plot details
     if plot_title:
         ax.set_title(plot_title, fontsize=20, pad=40)
     ax.xaxis.tick_top()
     ax.set_facecolor("#ebedf0")
     ax.tick_params(axis="both", which="both", length=0)
+
+
+def hubify(time_series: pd.Series, plot_title: Union[str, None] = None, ax: Optional[Axes] = None):
+    """
+    Create a GitHub like plot of your time series data.
+
+    :param time_series: A pandas series of type `datetime64` with the timestamps for the events to plot
+    :param plot_title: The title of the plot
+    :param ax: The Axes in which the heatmap should be drawn, uses the currently-active Axes if none is provided
+    """
+    prepared_df = prepare_time_series(time_series)
+
+    prepared_df["continuous_week"] = calculate_continuous_week(prepared_df)
+
+    heatmap = prepare_base_heatmap(prepared_df)
+
+    plot_heatmap(ax, prepared_df, heatmap, plot_title)
+
+
