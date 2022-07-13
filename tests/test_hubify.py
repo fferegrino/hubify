@@ -3,59 +3,31 @@ from datetime import datetime
 import numpy
 import pandas as pd
 
-from hubify.hubify import calculate_continuous_week, prepare_base_heatmap, prepare_time_series
+from hubify.hubify import group_by_day, prepare_base_heatmap, prepare_events
 
 
-def test_simple_week_number():
-    input_frame = pd.DataFrame(
+def test_prepare_events():
+    input_data = pd.DataFrame(
         [
-            (2022, 1),
-            (2022, 2),
+            (datetime(2021, 1, 1), 1),
+            (datetime(2021, 1, 3), 2),
         ],
-        columns=["year", "week"],
+        columns=["date", "events"],
+    )
+    expected = pd.DataFrame(
+        [
+            (datetime(2021, 1, 1), 1, 0, 5),
+            (datetime(2021, 1, 3), 2, 1, 0),
+        ],
+        columns=["date", "events", "week", "weekday"],
     )
 
-    expected_series = pd.Series([1, 2])
+    actual = prepare_events(input_data)
 
-    actual_series = calculate_continuous_week(input_frame)
-
-    pd.testing.assert_series_equal(expected_series, actual_series, check_names=False)
+    pd.testing.assert_frame_equal(expected, actual)
 
 
-def test_mid_year_week_number():
-    input_frame = pd.DataFrame(
-        [
-            (2022, 5),
-            (2022, 7),
-        ],
-        columns=["year", "week"],
-    )
-
-    expected_series = pd.Series([1, 3])
-
-    actual_series = calculate_continuous_week(input_frame)
-
-    pd.testing.assert_series_equal(expected_series, actual_series, check_names=False)
-
-
-def test_muli_year_week_number():
-    input_frame = pd.DataFrame(
-        [
-            (2022, 5),
-            (2022, 7),
-            (2023, 1),
-        ],
-        columns=["year", "week"],
-    )
-
-    expected_series = pd.Series([1, 3, 49])
-
-    actual_series = calculate_continuous_week(input_frame)
-
-    pd.testing.assert_series_equal(expected_series, actual_series, check_names=False)
-
-
-def test_prepare_time_series():
+def testgroup_by_day():
 
     # Prepare
     input_data = pd.Series(
@@ -70,16 +42,16 @@ def test_prepare_time_series():
 
     expected = pd.DataFrame(
         [
-            (datetime(2022, 1, 3), 2, 0, 1, 2022),
-            (datetime(2022, 1, 4), 1, 1, 1, 2022),
-            (datetime(2022, 1, 5), 1, 2, 1, 2022),
-            (datetime(2022, 1, 6), 1, 3, 1, 2022),
+            (datetime(2022, 1, 3), 2),
+            (datetime(2022, 1, 4), 1),
+            (datetime(2022, 1, 5), 1),
+            (datetime(2022, 1, 6), 1),
         ],
-        columns=["date", "events", "weekday", "week", "year"],
+        columns=["date", "events"],
     )
 
     # Act
-    actual_result = prepare_time_series(input_data)
+    actual_result = group_by_day(input_data)
 
     # Assert
     pd.testing.assert_frame_equal(actual_result, expected)
@@ -89,23 +61,43 @@ def test_prepare_base_heatmap():
     # Prepare
     input_data = pd.DataFrame(
         [
-            (datetime(2022, 1, 3), 2, 0, 1, 2022, 1),
-            (datetime(2022, 1, 4), 1, 1, 1, 2022, 1),
-            (datetime(2022, 1, 5), 1, 2, 1, 2022, 1),
-            (datetime(2022, 1, 6), 1, 3, 1, 2022, 1),
+            (
+                datetime(2022, 1, 2),
+                2,
+                0,
+                0,
+            ),
+            (
+                datetime(2022, 1, 3),
+                1,
+                0,
+                1,
+            ),
+            (
+                datetime(2022, 1, 4),
+                1,
+                0,
+                2,
+            ),
+            (
+                datetime(2022, 1, 5),
+                1,
+                0,
+                3,
+            ),
         ],
-        columns=["date", "events", "weekday", "week", "year", "continuous_week"],
+        columns=["date", "events", "week", "weekday"],
     )
 
     expected = numpy.array(
         [
-            [numpy.nan, 2],
-            [numpy.nan, 1],
-            [numpy.nan, 1],
-            [numpy.nan, 1],
-            [numpy.nan, numpy.nan],
-            [numpy.nan, numpy.nan],
-            [numpy.nan, numpy.nan],
+            [2],
+            [1],
+            [1],
+            [1],
+            [numpy.nan],
+            [numpy.nan],
+            [numpy.nan],
         ]
     )
 

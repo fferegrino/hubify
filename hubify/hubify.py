@@ -7,41 +7,32 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.axes import Axes
 
-# TODO: check https://github.com/gisle/isoweek to make this dynamic
 
-WEEKS_IN_A_YEAR = 52
-
-
-def calculate_continuous_week(frame: pd.DataFrame) -> pd.Series:
+def group_by_day(time_series: pd.Series) -> pd.DataFrame:
     """
-    Calculate the number of week starting from the first week available
-    :param frame: A data frame containing a 'year' and 'week' columns
-    :return: A pandas series with the continuous week number
+    Groups a time series by day of ocurrence and returns the results as a dataframe with columns "date" and "events"
     """
-    min_year = frame["year"].min()
-    min_week = frame[frame["year"] == min_year]["week"].min()
-
-    year_week = (frame["year"] - min_year) * WEEKS_IN_A_YEAR
-
-    return frame["week"] + year_week - min_week + 1
-
-
-def prepare_time_series(time_series: pd.Series) -> pd.DataFrame:
-    # Data transformation
     day_by_day = time_series.dt.floor("d")
     grouped = day_by_day.groupby(day_by_day).count()
     grouped = grouped.rename_axis("date").rename("events").reset_index()
-    grouped["weekday"] = grouped["date"].dt.weekday
-    grouped["week"] = grouped["date"].dt.week
-    grouped["year"] = grouped["date"].dt.year
     return grouped
+
+
+def prepare_events(events: pd.DataFrame) -> pd.DataFrame:
+    # Select the minimum year and week in the dataframe
+    min_sunday = events["date"].min() - timedelta(events["date"].min().weekday() + 1)
+    days_from_initial_sunday = (events["date"] - min_sunday).dt.days
+    events["week"] = days_from_initial_sunday // 7
+    events["week"] = events["week"] - events["week"].min()
+    events["weekday"] = (events["date"].dt.weekday + 1) % 7
+    return events[["date", "events", "week", "weekday"]]
 
 
 def prepare_base_heatmap(grouped: pd.DataFrame) -> np.array:
     # Generate a heatmap from the time series data
-    heatmap = np.full((7, grouped["continuous_week"].max() + 1), np.nan)
+    heatmap = np.full((7, grouped["week"].max() + 1), np.nan)
     for _, row in grouped.iterrows():
-        heatmap[row["weekday"]][row["continuous_week"]] = row["events"]
+        heatmap[row["weekday"]][row["week"]] = row["events"]
     return heatmap
 
 
@@ -56,14 +47,19 @@ def plot_heatmap(ax, prepared_df, heatmap, plot_title):
         square=True,
         linewidth=2,
     )
-    # Change Y labels
-    y_labels = ["Mon", "", "Wed", "", "Fri", "", "Sun"]
-    ax.set_yticklabels(y_labels, rotation=0)
-    # Get the monday for the first week of the graph
-    min_date = prepared_df["date"].min()
-    first_monday = min_date - timedelta(min_date.weekday())
-    all_mondays = [first_monday + timedelta(weeks=wk) for wk in range(prepared_df["continuous_week"].max() + 1)]
-    x_labels = [calendar.month_abbr[monday.month] for monday in all_mondays]
+    set_xy_labels(ax, prepared_df["date"].min(), prepared_df["continuous_week"].max())
+
+    ax.set_facecolor("#ebedf0")
+    if plot_title:
+        ax.set_title(plot_title, fontsize=20, pad=40)
+
+
+def set_xy_labels(ax, min_date, week_number):
+
+    # X-axis
+    first_sunday = min_date if min_date.weekday() == 6 else min_date - timedelta(min_date.weekday() + 1)
+    all_sundays = [first_sunday + timedelta(weeks=wk) for wk in range(week_number)]
+    x_labels = [calendar.month_abbr[monday.month] for monday in all_sundays]
     true_x_labels = []
     current_x_label = ""
     for x_label in x_labels:
@@ -74,12 +70,13 @@ def plot_heatmap(ax, prepared_df, heatmap, plot_title):
             true_x_labels.append("")
     if current_x_label != x_label:
         true_x_labels.append(x_label)
-    ax.set_xticklabels(true_x_labels)
-    # Set more plot details
-    if plot_title:
-        ax.set_title(plot_title, fontsize=20, pad=40)
+    ax.set_xticks([wk + 0.5 for wk in range(week_number)], true_x_labels)
     ax.xaxis.tick_top()
-    ax.set_facecolor("#ebedf0")
+
+    # Y-axis
+    y_labels = ["", "Mon", "", "Wed", "", "Fri", ""]
+    ax.set_yticklabels(y_labels, rotation=0)
+
     ax.tick_params(axis="both", which="both", length=0)
 
 
@@ -91,12 +88,9 @@ def hubify(time_series: pd.Series, plot_title: Union[str, None] = None, ax: Opti
     :param plot_title: The title of the plot
     :param ax: The Axes in which the heatmap should be drawn, uses the currently-active Axes if none is provided
     """
-    prepared_df = prepare_time_series(time_series)
-
-    prepared_df["continuous_week"] = calculate_continuous_week(prepared_df)
+    grouped = group_by_day(time_series)
+    prepared_df = prepare_events(grouped)
 
     heatmap = prepare_base_heatmap(prepared_df)
 
     plot_heatmap(ax, prepared_df, heatmap, plot_title)
-
-
