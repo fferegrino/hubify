@@ -13,7 +13,7 @@ from hubify.hubify import hubify
 
 random.seed(20)
 
-base_date = datetime(2021, 1, 1)
+base_date = datetime(2021, 10, 1)
 # all_dates = pd.Series([
 #     base_date + timedelta(days=random.randint(0, 365)) for _ in range(1000)
 # ])
@@ -21,6 +21,6 @@ base_date = datetime(2021, 1, 1)
 
 all_dates = pd.Series(itertools.chain(*[[base_date + timedelta(days=x) for _ in range(x + 1)] for x in range(10)]))
 # breakpoint()
-hubify(all_dates, plot_title="Mi gráfica especial")
+hubify(all_dates, plot_title="Mi gráfica especial", trim=True)
 
 plt.show()
