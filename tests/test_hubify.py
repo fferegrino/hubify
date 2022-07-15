@@ -4,7 +4,7 @@ import numpy
 import pandas as pd
 import pytest
 
-from hubify.hubify import calculate_position_heatmap, group_by_day, pad_to_sundays, prepare_base_heatmap
+from hubify.transformations import calculate_position_heatmap, group_by_day, pad_to_sundays, prepare_base_heatmap
 
 
 def test_prepare_events():
@@ -23,7 +23,7 @@ def test_prepare_events():
         columns=["date", "events", "week", "weekday"],
     )
 
-    actual = calculate_position_heatmap(input_data)
+    actual = calculate_position_heatmap(input_data, datetime(2020, 12, 27))
 
     pd.testing.assert_frame_equal(expected, actual)
 
@@ -103,7 +103,7 @@ def test_prepare_base_heatmap():
     )
 
     # Act
-    actual = prepare_base_heatmap(input_data)
+    actual = prepare_base_heatmap(input_data, weeks=1)
 
     # Assert
     numpy.testing.assert_equal(actual, expected)
