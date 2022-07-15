@@ -2,8 +2,9 @@ from datetime import datetime
 
 import numpy
 import pandas as pd
+import pytest
 
-from hubify.hubify import group_by_day, prepare_base_heatmap, prepare_events
+from hubify.transformations import calculate_position_heatmap, group_by_day, pad_to_sundays, prepare_base_heatmap
 
 
 def test_prepare_events():
@@ -22,7 +23,7 @@ def test_prepare_events():
         columns=["date", "events", "week", "weekday"],
     )
 
-    actual = prepare_events(input_data)
+    actual = calculate_position_heatmap(input_data, datetime(2020, 12, 27))
 
     pd.testing.assert_frame_equal(expected, actual)
 
@@ -102,7 +103,21 @@ def test_prepare_base_heatmap():
     )
 
     # Act
-    actual = prepare_base_heatmap(input_data)
+    actual = prepare_base_heatmap(input_data, weeks=1)
 
     # Assert
     numpy.testing.assert_equal(actual, expected)
+
+
+@pytest.mark.parametrize(
+    ["start_date", "end_date", "start_sunday", "end_sunday"],
+    [
+        (datetime(2021, 1, 3), datetime(2021, 1, 9), datetime(2021, 1, 3), datetime(2021, 1, 10)),
+        (datetime(2021, 1, 3), datetime(2021, 1, 10), datetime(2021, 1, 3), datetime(2021, 1, 17)),
+        (datetime(2021, 1, 1), datetime(2021, 12, 31), datetime(2020, 12, 27), datetime(2022, 1, 2)),
+    ],
+)
+def test_pad_to_sundays(start_date, end_date, start_sunday, end_sunday):
+    actual_start_sunday, actual_end_sunday = pad_to_sundays(start_date, end_date)
+    assert actual_start_sunday == start_sunday
+    assert actual_end_sunday == end_sunday
