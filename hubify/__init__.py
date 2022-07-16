@@ -1,4 +1,4 @@
-__version__ = "0.2.4"
+__version__ = "0.3.0"
 
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple, Union
