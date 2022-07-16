@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def group_by_day(time_series: pd.Series) -> pd.DataFrame:
+def group_by_day(time_series: pd.Series, buckets: int = -1) -> pd.DataFrame:
     """
     Groups a time series by day of ocurrence and returns the results as a dataframe with columns "date" and "events"
     """
@@ -12,6 +12,16 @@ def group_by_day(time_series: pd.Series) -> pd.DataFrame:
     grouped = day_by_day.groupby(day_by_day).count()
     grouped = grouped.rename_axis("date").rename("events").reset_index()
     return grouped
+
+
+def bucketize(events: pd.Series, buckets: int) -> pd.Series:
+    """
+    If `buckets` > 0, this method will put the value of the series into buckets
+    """
+    if buckets > 0:
+        evts = pd.cut(events, bins=buckets, include_lowest=True)
+        return evts.map(lambda x: (x.left + x.right) / 2)
+    return events
 
 
 def calculate_position_heatmap(events: pd.DataFrame, min_sunday: datetime) -> pd.DataFrame:

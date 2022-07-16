@@ -7,7 +7,13 @@ import pandas as pd
 from matplotlib.axes import Axes
 
 from hubify.plot import get_cmap, plot_heatmap, set_xy_labels
-from hubify.transformations import calculate_position_heatmap, group_by_day, pad_to_sundays, prepare_base_heatmap
+from hubify.transformations import (
+    bucketize,
+    calculate_position_heatmap,
+    group_by_day,
+    pad_to_sundays,
+    prepare_base_heatmap,
+)
 
 
 def hubify(
@@ -16,6 +22,7 @@ def hubify(
     start_date: datetime = None,
     end_date: datetime = None,
     trim: bool = False,
+    buckets: int = 4,
     cmap: Union[Tuple[str, str], str, None] = None,
     ax: Optional[Axes] = None,
 ) -> Axes:
@@ -26,7 +33,8 @@ def hubify(
     :param start_date: The initial date to show for the plot
     :param end_date: The last date to show for the plot
     :param trim: If true, the entire time series data will be plotted, ignoring both `start_date` and `end_date`
-    :param cmap: 
+    :param buckets: An integer specifying the number of buckets to divide the data into, pass -1 if you do not want data to be divided in buckets
+    :param cmap: Could be either a tuple of colors in hex format (low, high) or a matplotlib color map
     :param ax: The axes to draw the plot on, if none is provided, it will use the current active axes
     :return: The axes where the plot was drawn
     """
@@ -49,6 +57,9 @@ def hubify(
     time_series = time_series[(start_date <= time_series) & (time_series < end_date)]
 
     grouped = group_by_day(time_series)
+
+    grouped["events"] = bucketize(grouped["events"], buckets)
+
     prepared_df = calculate_position_heatmap(grouped, start_date)
 
     heatmap = prepare_base_heatmap(prepared_df, weeks=weeks_to_plot)
