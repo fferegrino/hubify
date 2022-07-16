@@ -4,22 +4,26 @@ from typing import Optional
 
 import numpy as np
 import seaborn as sns
+from colour import Color
 from matplotlib.axes import Axes
+from matplotlib.colors import ListedColormap
+
+from hubify.defaults import HIGH_COLOR, LOW_COLOR
 
 
-def plot_heatmap(ax: Optional[Axes], heatmap: np.ndarray):
+def plot_heatmap(ax: Optional[Axes], heatmap: np.ndarray, cmap):
     # Plot the timestamp
     ax = sns.heatmap(
         heatmap,
         ax=ax,
         cbar=False,
         linecolor="white",
-        cmap="Greens",
+        cmap=cmap,
         square=True,
         linewidth=2,
     )
 
-    ax.set_facecolor("#ebedf0")
+    ax.set_facecolor(EMPTY_COLOR)
 
     return ax
 
@@ -47,3 +51,15 @@ def set_xy_labels(ax: Axes, start_date: datetime, week_number: int):
     ax.set_yticklabels(y_labels, rotation=0)
 
     ax.tick_params(axis="both", which="both", length=0)
+
+
+def get_cmap(cmap):
+    cmap = cmap or (LOW_COLOR, HIGH_COLOR)
+    if isinstance(cmap, tuple):
+        initial = Color(cmap[0])
+        end = Color(cmap[1])
+        colormap = np.array([cl.rgb for cl in initial.range_to(end, 256)])
+
+        return ListedColormap(colormap)
+    else:
+        return cmap
