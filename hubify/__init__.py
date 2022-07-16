@@ -1,12 +1,12 @@
 __version__ = "0.2.4"
 
 from datetime import datetime, timedelta
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 import pandas as pd
 from matplotlib.axes import Axes
 
-from hubify.plot import plot_heatmap, set_xy_labels
+from hubify.plot import get_cmap, plot_heatmap, set_xy_labels
 from hubify.transformations import calculate_position_heatmap, group_by_day, pad_to_sundays, prepare_base_heatmap
 
 
@@ -16,16 +16,17 @@ def hubify(
     start_date: datetime = None,
     end_date: datetime = None,
     trim: bool = False,
+    cmap: Union[Tuple[str, str], str, None] = None,
     ax: Optional[Axes] = None,
 ) -> Axes:
     """
     Create a  GitHub-like visualization for your time series data
-
     :param time_series: The data to plot
     :param plot_title: Plot's title
     :param start_date: The initial date to show for the plot
     :param end_date: The last date to show for the plot
     :param trim: If true, the entire time series data will be plotted, ignoring both `start_date` and `end_date`
+    :param cmap: 
     :param ax: The axes to draw the plot on, if none is provided, it will use the current active axes
     :return: The axes where the plot was drawn
     """
@@ -52,7 +53,9 @@ def hubify(
 
     heatmap = prepare_base_heatmap(prepared_df, weeks=weeks_to_plot)
 
-    ax = plot_heatmap(ax, heatmap)
+    colormap = get_cmap(cmap)
+
+    ax = plot_heatmap(ax, heatmap, cmap=colormap)
 
     set_xy_labels(ax, start_date, weeks_to_plot)
 
