@@ -29,5 +29,8 @@ if uploaded_file is not None:
     end_times = pd.to_datetime(full_history["endTime"])
     fig = plt.figure(figsize=(10, 3), dpi=250)
     ax = hubify(end_times)
-    ax.set_title("My year in Spotify")
+
+    title = st.text_input("Plot title")
+
+    ax.set_title(title)
     st.pyplot(fig)
