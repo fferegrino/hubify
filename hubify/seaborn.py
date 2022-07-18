@@ -6,7 +6,7 @@ import numpy as np
 import seaborn as sns
 from matplotlib.axes import Axes
 
-from hubify.utils import EMPTY_COLOR
+from hubify.defaults import EMPTY_COLOR, HIGH_COLOR, LOW_COLOR
 
 
 def plot_heatmap(ax: Optional[Axes], heatmap: np.ndarray, cmap):
