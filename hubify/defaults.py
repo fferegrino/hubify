@@ -1,3 +1,0 @@
-EMPTY_COLOR = "#ebedf0"
-LOW_COLOR = "#9be9a8"
-HIGH_COLOR = "#216e39"
