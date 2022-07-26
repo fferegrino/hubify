@@ -4,7 +4,7 @@ import numpy
 import pandas as pd
 import pytest
 
-from hubify.transformations import calculate_position_heatmap, group_by_day, pad_to_sundays, prepare_base_heatmap
+from hubify.heatmap import calculate_position_heatmap, group_by_day, pad_to_sundays, prepare_base_heatmap
 
 
 def test_prepare_events():
