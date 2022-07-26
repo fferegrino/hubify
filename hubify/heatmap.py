@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -46,3 +47,19 @@ def pad_to_sundays(start_date, end_date):
     start = start_date if start_date.weekday() == 6 else start_date - timedelta(days=start_date.weekday() + 1)
     end = end_date + timedelta(days=6 - (-1 if end_date.weekday() == 6 else end_date.weekday()))
     return start, end
+
+
+def make_heatmap(
+    time_series: pd.Series, buckets: int, start_date: datetime, end_date: datetime
+) -> Tuple[np.ndarray, datetime, datetime]:
+    start_date, end_date = pad_to_sundays(start_date, end_date)
+
+    weeks_to_plot = (end_date - start_date).days // 7
+
+    time_series = time_series[(start_date <= time_series) & (time_series < end_date)]
+    grouped = group_by_day(time_series)
+    grouped["events"] = bucketize(grouped["events"], buckets)
+    prepared_df = calculate_position_heatmap(grouped, start_date)
+    heatmap = prepare_base_heatmap(prepared_df, weeks=weeks_to_plot)
+
+    return heatmap, start_date, end_date

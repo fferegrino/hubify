@@ -6,14 +6,9 @@ from typing import List, Optional, Tuple, Union
 import pandas as pd
 from matplotlib.axes import Axes
 
-from hubify.plot import get_cmap, plot_heatmap, set_xy_labels
-from hubify.transformations import (
-    bucketize,
-    calculate_position_heatmap,
-    group_by_day,
-    pad_to_sundays,
-    prepare_base_heatmap,
-)
+from hubify.heatmap import make_heatmap
+from hubify.seaborn import plot_matplotlib
+from hubify.utils import get_cmap
 
 
 def hubify(
@@ -45,32 +40,14 @@ def hubify(
         end_date = end_date or datetime.today().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
         start_date = start_date or end_date - timedelta(days=366)
 
-    start_date, end_date = pad_to_sundays(start_date, end_date)
-
     if start_date > end_date:
         raise ValueError("start_date cannot be greater than end_data")
 
-    weeks_to_plot = (end_date - start_date).days // 7
-
     time_series = pd.Series(time_series)
-    # Filter time series data based on start and end date
-    time_series = time_series[(start_date <= time_series) & (time_series < end_date)]
-
-    grouped = group_by_day(time_series)
-
-    grouped["events"] = bucketize(grouped["events"], buckets)
-
-    prepared_df = calculate_position_heatmap(grouped, start_date)
-
-    heatmap = prepare_base_heatmap(prepared_df, weeks=weeks_to_plot)
-
     colormap = get_cmap(cmap)
 
-    ax = plot_heatmap(ax, heatmap, cmap=colormap)
+    heatmap, true_start_date, true_end_date = make_heatmap(time_series, buckets, start_date, end_date)
 
-    set_xy_labels(ax, start_date, weeks_to_plot)
-
-    if plot_title:
-        ax.set_title(plot_title, fontsize=20, pad=40)
+    ax = plot_matplotlib(heatmap, colormap, plot_title, true_start_date, ax)
 
     return ax

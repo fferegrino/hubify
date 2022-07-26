@@ -4,11 +4,9 @@ from typing import Optional
 
 import numpy as np
 import seaborn as sns
-from colour import Color
 from matplotlib.axes import Axes
-from matplotlib.colors import ListedColormap
 
-from hubify.defaults import HIGH_COLOR, LOW_COLOR
+from hubify.utils import EMPTY_COLOR
 
 
 def plot_heatmap(ax: Optional[Axes], heatmap: np.ndarray, cmap):
@@ -53,13 +51,10 @@ def set_xy_labels(ax: Axes, start_date: datetime, week_number: int):
     ax.tick_params(axis="both", which="both", length=0)
 
 
-def get_cmap(cmap):
-    cmap = cmap or (LOW_COLOR, HIGH_COLOR)
-    if isinstance(cmap, tuple):
-        initial = Color(cmap[0])
-        end = Color(cmap[1])
-        colormap = np.array([cl.rgb for cl in initial.range_to(end, 256)])
-
-        return ListedColormap(colormap)
-    else:
-        return cmap
+def plot_matplotlib(heatmap, colormap, plot_title, true_start_date, ax):
+    ax = plot_heatmap(ax, heatmap, cmap=colormap)
+    weeks_to_plot = heatmap.shape[1]
+    set_xy_labels(ax, true_start_date, weeks_to_plot)
+    if plot_title:
+        ax.set_title(plot_title, fontsize=20, pad=40)
+    return ax
